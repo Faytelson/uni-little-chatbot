@@ -1,0 +1,37 @@
+<template>
+    <button 
+        class="button-option"
+        @click="emitEvent"
+    >
+        {{ data.text }}
+    </button>
+</template>
+    
+<script>
+export default {
+    data: function() {
+        return {
+
+        }
+    },
+    props: ['data'],
+    methods: {
+        emitEvent() {
+            if(this.data.id !== 3) {
+                this.$emit('click', { text:this.data.text, answer: this.data.answer, id: this.data.id })
+            } else {
+                this.$emit('back')
+            }
+        }
+    }
+}
+
+</script>
+    
+<style>
+    .button-option {
+        font-family: 'Roboto', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+    }
+</style>
