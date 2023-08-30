@@ -33,5 +33,11 @@ export default {
         font-family: 'Roboto', sans-serif;
         font-size: 16px;
         font-weight: 400;
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+        color: #fff;
+        background-color: #dc0c53;
+        padding: 0 15px;
     }
 </style>

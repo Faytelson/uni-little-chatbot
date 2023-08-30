@@ -13,6 +13,9 @@ export default {
         }
     },
     props: ['data'],
+    mounted:function() {
+        this.$emit('mounted')
+    }
 }
 
 </script>
@@ -20,7 +23,8 @@ export default {
 <style>
     .chat-message {
         font-family: 'Roboto', sans-serif;
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 400;
+        line-height: 1.3em;;
     }
 </style>

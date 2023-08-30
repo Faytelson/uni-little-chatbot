@@ -18,8 +18,9 @@
                 <div 
                     v-for="item in messages"
                     class="chatbot__message"
+                    :class="`chatbot__message_${item.type}`"
                 >
-                    <component :is="item.component" :data="item" @click="renderMessage" @back="fillGreeting"></component>
+                      <component :is="item.component" :data="item" @click="renderMessage" @back="fillGreeting" :key="item.text"></component>
                 </div>
             </div>
         </div>
@@ -43,36 +44,40 @@ export default {
                 {
                     component: 'ChatMessage',
                     type: 'incoming',
-                    text: 'This is a first message text'
+                    text: 'Приветствую! Что я могу сделать для Вас?',
                 },
                 {
                     component: 'ChatMessage',
                     type: 'incoming',
-                    text: 'This is a second message text'
+                    text: 'Я могу заказать такси, узнать какая сейчас погода или даже напугать. Что бы вы хотели?',
                 },
       ],
       buttons: [
       {
                     component: 'ButtonOption',
-                    answer: 'This is first btn answer',
-                    text: 'This is a first button',
+                    answer: 'Хорошо, сейчас я закажу Вам самое быстрое такси. Что-нибудь еще?',
+                    text: 'Закажи такси',
+                    type: 'button',
                     id: 0,
                 },
                 {
                     component: 'ButtonOption',
-                    answer: 'This is first btn answer',
-                    text: 'This is a second button',
+                    answer: 'У нас всегда солнечно! Хотите еще что-нибудь?',
+                    text: 'Узнай погоду',
+                    type: 'button',
                     id: 1,
                 },
                 {
                     component: 'ButtonOption',
-                    answer: 'This is first btn answer',
-                    text: 'This is a third button',
+                    answer: 'Последний человек на Земле сидел в комнате. В дверь постучались…',
+                    text: 'Расскажи мне страшилку',
+                    type: 'button',
                     id: 2,
                 },
                 {
                     component: 'ButtonOption',
-                    text: 'This is a back button',
+                    text: 'Назад',
+                    type: 'button',
                     id: 3,
                 },
       ]
@@ -111,6 +116,9 @@ export default {
         }
       })
     },
+    renderButtons() {
+      this.messages.push(...this.buttons.filter(button => button.id !== 3))
+    },
     closeChatbot() {
       console.log('close')
     }
@@ -128,27 +136,34 @@ export default {
 }
 
 button {
+  padding: 0;
   border: none;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  cursor: pointer;
 }
 
 .chatbot {
   width: 100%;
-  max-width: 300px;
-  max-height: 60vh;
+  max-width: 370px;
+  max-height: 70vh;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  bottom: 140px;
+  bottom: 150px;
   position: fixed;
   right: 80px;
   z-index: 9999;
 }
 .chatbot__inner {
   width: 100%;
+  height: 100%;
+  max-height: calc(70vh - 70px);
   margin-bottom: 20px;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid #dc0c53;
+  border: 2px solid #dc0c53;
 }
 
 .chatbot__header {
@@ -188,6 +203,64 @@ button {
 }
 
 .chatbot__body {
+  height: 100%;
+  max-height: calc(70vh - 150px);
   padding: 24px;
+  overflow-y: auto;
+}
+
+.chatbot__message-track {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.chatbot__message {
+  padding: 15px;
+  border: 2px solid;
+  border-radius: 10px;
+  background-color: #fff;
+  position: relative;
+}
+
+.chatbot__message_incoming {
+  border-color: #dc0c53;
+}
+
+.chatbot__message_outcoming {
+  border-color: #aeb8cd;
+  align-self: flex-end;
+}
+
+.chatbot__message_incoming::before,
+.chatbot__message_outcoming::before {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: -3px;
+  width: 22px;
+  height: 14px;
+  z-index: -1;
+}
+
+.chatbot__message_incoming::before {
+    left: -10px;
+    background: url('./assets/images/message-corner.svg') 0 0/contain no-repeat;
+    transform: rotate(7deg);
+}
+
+.chatbot__message_outcoming::before {
+  right: -10px;
+    background: url('./assets/images/message-corner_grey.svg') 0 0/contain no-repeat;
+    transform: scaleX(-1) rotate(7deg);
+}
+
+.chatbot__message_button {
+  border: none;
+  padding: 0;
+  height: 35px;
+  display: flex;
+  overflow: hidden;
 }
 </style>
