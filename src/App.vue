@@ -20,7 +20,7 @@
                     class="chatbot__message"
                     :class="`chatbot__message_${item.type}`"
                 >
-                      <component :is="item.component" :data="item" @click="renderMessage" @back="fillGreeting" :key="item.text"></component>
+                      <component :is="item.component" :data="item" @click="renderMessage" @back="fillGreeting" :key="item.text" @mounted.once="animate('.chatbot__message')"></component>
                 </div>
             </div>
         </div>
@@ -34,6 +34,7 @@
 import ChatMessage from './components/ChatMessage.vue';
 import ButtonOption from './components/ButtonOption.vue';
 import ButtonClose from './components/ButtonClose.vue';
+import {animate, stagger} from 'motion';
 
 export default {
   name: 'app',
@@ -69,7 +70,7 @@ export default {
                 },
                 {
                     component: 'ButtonOption',
-                    answer: 'Последний человек на Земле сидел в комнате. В дверь постучались…',
+                    answer: 'Последний человек на Земле сидел в комнате. В дверь постучались… Ну как? Может, что-нибудь другое?',
                     text: 'Расскажи мне страшилку',
                     type: 'button',
                     id: 2,
@@ -80,7 +81,8 @@ export default {
                     type: 'button',
                     id: 3,
                 },
-      ]
+      ],
+      animation: null
     }
   },
   mounted: function() {
@@ -91,12 +93,20 @@ export default {
     ButtonOption,
     ButtonClose,
   },
-  methods: {
+    methods: {
     fillGreeting() {
+      const messageItems = document.querySelectorAll('.chatbot__message');
+      messageItems.forEach(message => {
+        message.style.opacity = 0;
+      })
       this.messages = [];
       this.messages = [...this.greeting, ...this.buttons.filter(button => button.id !== 3)];
     },
     renderMessage(buttonObj) {
+      const messageItems = document.querySelectorAll('.chatbot__message');
+      messageItems.forEach(message => {
+        message.style.opacity = 0;
+      })
       this.messages = [];
       this.messages.push(
         {
@@ -118,6 +128,24 @@ export default {
     },
     renderButtons() {
       this.messages.push(...this.buttons.filter(button => button.id !== 3))
+    },
+    animate(className) {
+      const buttonOptions = document.querySelectorAll('.button-option');
+      buttonOptions.forEach(button => {
+        button.disabled = true;
+      })
+      animate(
+        className,
+        { opacity: 1},
+        { delay: stagger(1),
+          duration: 1.5 
+        }
+      ).finished.then(() => {
+        console.log('stop')
+        buttonOptions.forEach(button => {
+        // button.disabled = false;
+      })
+      })
     },
     closeChatbot() {
       console.log('close')
@@ -222,6 +250,7 @@ button {
   border-radius: 10px;
   background-color: #fff;
   position: relative;
+  opacity: 0;
 }
 
 .chatbot__message_incoming {

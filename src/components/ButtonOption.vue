@@ -15,6 +15,9 @@ export default {
         }
     },
     props: ['data'],
+    mounted() {
+        this.$emit('mounted')
+    },
     methods: {
         emitEvent() {
             if(this.data.id !== 3) {

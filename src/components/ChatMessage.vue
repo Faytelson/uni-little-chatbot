@@ -13,7 +13,7 @@ export default {
         }
     },
     props: ['data'],
-    mounted:function() {
+    mounted() {
         this.$emit('mounted')
     }
 }
