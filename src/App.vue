@@ -20,7 +20,21 @@
                     class="chatbot__message"
                     :class="`chatbot__message_${item.type}`"
                 >
-                      <component :is="item.component" :data="item" @click="renderMessage" @back="fillGreeting" :key="item.text" @mounted.once="animate('.chatbot__message')"></component>
+                  <transition-group 
+                    appear
+                    @enter="enter"
+                    @after-enter="afterEnter"
+                    :css="false"
+                  >
+                    <component 
+                        :is="item.component"
+                        :data="item"
+                        :key="item.text"
+                        @click="renderMessage" 
+                        @back="fillGreeting" 
+                        @mounted="animateElem"
+                      ></component>
+                  </transition-group>
                 </div>
             </div>
         </div>
@@ -82,7 +96,7 @@ export default {
                     id: 3,
                 },
       ],
-      animation: null
+      time: 0,
     }
   },
   mounted: function() {
@@ -95,18 +109,10 @@ export default {
   },
     methods: {
     fillGreeting() {
-      const messageItems = document.querySelectorAll('.chatbot__message');
-      messageItems.forEach(message => {
-        message.style.opacity = 0;
-      })
       this.messages = [];
       this.messages = [...this.greeting, ...this.buttons.filter(button => button.id !== 3)];
     },
     renderMessage(buttonObj) {
-      const messageItems = document.querySelectorAll('.chatbot__message');
-      messageItems.forEach(message => {
-        message.style.opacity = 0;
-      })
       this.messages = [];
       this.messages.push(
         {
@@ -129,23 +135,37 @@ export default {
     renderButtons() {
       this.messages.push(...this.buttons.filter(button => button.id !== 3))
     },
-    animate(className) {
+    animateElem(className) {
       const buttonOptions = document.querySelectorAll('.button-option');
       buttonOptions.forEach(button => {
         button.disabled = true;
       })
-      animate(
-        className,
-        { opacity: 1},
-        { delay: stagger(1),
-          duration: 1.5 
+    },
+    enter(el, done) {
+      let coef = 1;
+      let timeout = setTimeout(() => {
+        let interval = setInterval(()=> {
+        if(el.style.opacity >= 1) {
+          clearInterval(interval);
+          done();
         }
-      ).finished.then(() => {
-        console.log('stop')
-        buttonOptions.forEach(button => {
-        // button.disabled = false;
+        coef++;
+        el.style.opacity = 0.1 * coef;
+      }, 50)
+      }, this.time * 1000);
+      this.time++
+    },
+    afterEnter(el) {
+      const messageItems = document.querySelectorAll('.chatbot__message');
+      if(el.parentElement.parentElement === messageItems[messageItems.length - 1]) {
+        const buttonOptions = document.querySelectorAll('.button-option');
+        let timeout = setTimeout(() => {
+          buttonOptions.forEach(button => {
+        button.disabled = false;
+        this.time = 0;
       })
-      })
+        }, 2000)
+      }
     },
     closeChatbot() {
       console.log('close')
@@ -250,7 +270,7 @@ button {
   border-radius: 10px;
   background-color: #fff;
   position: relative;
-  opacity: 0;
+  /* opacity: 0; */
 }
 
 .chatbot__message_incoming {

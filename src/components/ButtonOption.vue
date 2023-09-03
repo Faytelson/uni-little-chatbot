@@ -42,5 +42,6 @@ export default {
         color: #fff;
         background-color: #dc0c53;
         padding: 0 15px;
+        opacity: 0;
     }
 </style>

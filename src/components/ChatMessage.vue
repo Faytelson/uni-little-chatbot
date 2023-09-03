@@ -25,6 +25,7 @@ export default {
         font-family: 'Roboto', sans-serif;
         font-size: 18px;
         font-weight: 400;
-        line-height: 1.3em;;
+        line-height: 1.3em;
+        opacity: 0;
     }
 </style>
