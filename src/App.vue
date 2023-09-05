@@ -14,29 +14,29 @@
           </div>
         </div>
         <div class="chatbot__body">
-            <div class="chatbot__message-track">
-                <div 
-                    v-for="item in messages"
-                    class="chatbot__message"
-                    :class="`chatbot__message_${item.type}`"
-                >
-                  <transition-group 
-                    appear
-                    @enter="enter"
-                    @after-enter="afterEnter"
-                    :css="false"
-                  >
-                    <component 
-                        :is="item.component"
-                        :data="item"
+          <div class="chatbot__message-track">
+            <div
+                v-for="item in messages"
+                class="chatbot__message"
+                :class="`chatbot__message_${item.type}`"
+            >
+              <transition-group
+                  appear
+                  @enter="enter"
+                  @after-enter="afterEnter"
+                  :css="false"
+              >
+                <component
+                    :is="item.component"
+                    :data="item"
                         :key="item.text"
-                        @click="renderMessage" 
-                        @back="fillGreeting" 
-                        @mounted="animateElem"
-                      ></component>
-                  </transition-group>
-                </div>
+                    @click="renderMessage"
+                    @back="fillGreeting"
+                    @mounted="disableButtons"
+                ></component>
+              </transition-group>
             </div>
+          </div>
         </div>
       </div>
       <button class="chatbot__show-button">Show button</button>
@@ -48,58 +48,57 @@
 import ChatMessage from './components/ChatMessage.vue';
 import ButtonOption from './components/ButtonOption.vue';
 import ButtonClose from './components/ButtonClose.vue';
-import {animate, stagger} from 'motion';
 
 export default {
   name: 'app',
-  data () {
+  data() {
     return {
       messages: [],
       greeting: [
-                {
-                    component: 'ChatMessage',
-                    type: 'incoming',
-                    text: 'Приветствую! Что я могу сделать для Вас?',
-                },
-                {
-                    component: 'ChatMessage',
-                    type: 'incoming',
-                    text: 'Я могу заказать такси, узнать какая сейчас погода или даже напугать. Что бы вы хотели?',
-                },
+        {
+          component: 'ChatMessage',
+          type: 'incoming',
+          text: 'Приветствую! Что я могу сделать для Вас?',
+        },
+        {
+          component: 'ChatMessage',
+          type: 'incoming',
+          text: 'Я могу заказать такси, узнать какая сейчас погода или даже напугать. Что бы вы хотели?',
+        },
       ],
       buttons: [
-      {
-                    component: 'ButtonOption',
-                    answer: 'Хорошо, сейчас я закажу Вам самое быстрое такси. Что-нибудь еще?',
-                    text: 'Закажи такси',
-                    type: 'button',
-                    id: 0,
-                },
-                {
-                    component: 'ButtonOption',
-                    answer: 'У нас всегда солнечно! Хотите еще что-нибудь?',
-                    text: 'Узнай погоду',
-                    type: 'button',
-                    id: 1,
-                },
-                {
-                    component: 'ButtonOption',
-                    answer: 'Последний человек на Земле сидел в комнате. В дверь постучались… Ну как? Может, что-нибудь другое?',
-                    text: 'Расскажи мне страшилку',
-                    type: 'button',
-                    id: 2,
-                },
-                {
-                    component: 'ButtonOption',
-                    text: 'Назад',
-                    type: 'button',
-                    id: 3,
-                },
+        {
+          component: 'ButtonOption',
+          answer: 'Хорошо, сейчас я закажу Вам самое быстрое такси. Что-нибудь еще?',
+          text: 'Закажи такси',
+          type: 'button',
+          id: 0,
+        },
+        {
+          component: 'ButtonOption',
+          answer: 'У нас всегда солнечно! Хотите еще что-нибудь?',
+          text: 'Узнай погоду',
+          type: 'button',
+          id: 1,
+        },
+        {
+          component: 'ButtonOption',
+          answer: 'Последний человек на Земле сидел в комнате. В дверь постучались… Ну как? Может, что-нибудь другое?',
+          text: 'Расскажи мне страшилку',
+          type: 'button',
+          id: 2,
+        },
+        {
+          component: 'ButtonOption',
+          text: 'Назад',
+          type: 'button',
+          id: 3,
+        },
       ],
       time: 0,
     }
   },
-  mounted: function() {
+  mounted: function () {
     this.fillGreeting();
   },
   components: {
@@ -107,7 +106,7 @@ export default {
     ButtonOption,
     ButtonClose,
   },
-    methods: {
+  methods: {
     fillGreeting() {
       this.messages = [];
       this.messages = [...this.greeting, ...this.buttons.filter(button => button.id !== 3)];
@@ -115,27 +114,24 @@ export default {
     renderMessage(buttonObj) {
       this.messages = [];
       this.messages.push(
-        {
-          component: 'ChatMessage',
-          type: 'outcoming',
-          text: buttonObj.text,
-        },
-        {
-          component: 'ChatMessage',
-          type: 'incoming',
-          text: buttonObj.answer,
-        }
+          {
+            component: 'ChatMessage',
+            type: 'outcoming',
+            text: buttonObj.text,
+          },
+          {
+            component: 'ChatMessage',
+            type: 'incoming',
+            text: buttonObj.answer,
+          }
       );
       this.buttons.forEach(button => {
-        if(button.id !== buttonObj.id) {
+        if (button.id !== buttonObj.id) {
           this.messages.push(button)
         }
       })
     },
-    renderButtons() {
-      this.messages.push(...this.buttons.filter(button => button.id !== 3))
-    },
-    animateElem(className) {
+    disableButtons() {
       const buttonOptions = document.querySelectorAll('.button-option');
       buttonOptions.forEach(button => {
         button.disabled = true;
@@ -143,28 +139,28 @@ export default {
     },
     enter(el, done) {
       let coef = 1;
-      let timeout = setTimeout(() => {
-        let interval = setInterval(()=> {
-        if(el.style.opacity >= 1) {
-          clearInterval(interval);
-          done();
-        }
-        coef++;
-        el.style.opacity = 0.1 * coef;
-      }, 50)
+      setTimeout(() => {
+        let interval = setInterval(() => {
+          if (el.style.opacity >= 1) {
+            clearInterval(interval);
+            done();
+          }
+          coef++;
+          el.style.opacity = 0.1 * coef;
+        }, 50)
       }, this.time * 1000);
       this.time++
     },
     afterEnter(el) {
       const messageItems = document.querySelectorAll('.chatbot__message');
-      if(el.parentElement.parentElement === messageItems[messageItems.length - 1]) {
+      if (el.parentElement.parentElement === messageItems[messageItems.length - 1]) {
         const buttonOptions = document.querySelectorAll('.button-option');
         let timeout = setTimeout(() => {
           buttonOptions.forEach(button => {
-        button.disabled = false;
-        this.time = 0;
-      })
-        }, 2000)
+            button.disabled = false;
+            this.time = 0;
+          })
+        }, 20)
       }
     },
     closeChatbot() {
@@ -204,6 +200,7 @@ button {
   right: 80px;
   z-index: 9999;
 }
+
 .chatbot__inner {
   width: 100%;
   height: 100%;
@@ -215,17 +212,17 @@ button {
 }
 
 .chatbot__header {
-    width: 100%;
-    height: 80px;
-    background-color: #dc0c53;
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-    padding: 10px;
+  width: 100%;
+  height: 80px;
+  background-color: #dc0c53;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 10px;
 }
 
 .chatbot__button-close {
-  
+
 }
 
 .chatbot__logo {
@@ -294,15 +291,15 @@ button {
 }
 
 .chatbot__message_incoming::before {
-    left: -10px;
-    background: url('./assets/images/message-corner.svg') 0 0/contain no-repeat;
-    transform: rotate(7deg);
+  left: -10px;
+  background: url('./assets/images/message-corner.svg') 0 0/contain no-repeat;
+  transform: rotate(7deg);
 }
 
 .chatbot__message_outcoming::before {
   right: -10px;
-    background: url('./assets/images/message-corner_grey.svg') 0 0/contain no-repeat;
-    transform: scaleX(-1) rotate(7deg);
+  background: url('./assets/images/message-corner_grey.svg') 0 0/contain no-repeat;
+  transform: scaleX(-1) rotate(7deg);
 }
 
 .chatbot__message_button {
