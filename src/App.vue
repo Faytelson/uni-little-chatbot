@@ -16,25 +16,17 @@
         <div class="chatbot__body">
           <div class="chatbot__message-track">
             <div
-                v-for="item in messages"
-                class="chatbot__message"
-                :class="`chatbot__message_${item.type}`"
-            >
-              <transition-group
-                  appear
-                  @enter="enter"
-                  @after-enter="afterEnter"
-                  :css="false"
+                class="chatbot__text-messages"
+                ref="textMessages"
+            ></div>
+            <div class="chatbot__buttons">
+              <div
+                  class="chatbot__button"
+                  v-for="button in buttonsToShow"
+                  @click="rerenderTrack(button)"
               >
-                <component
-                    :is="item.component"
-                    :data="item"
-                        :key="item.text"
-                    @click="renderMessage"
-                    @back="fillGreeting"
-                    @mounted="disableButtons"
-                ></component>
-              </transition-group>
+                {{ button.text }}
+              </div>
             </div>
           </div>
         </div>
@@ -45,8 +37,6 @@
 </template>
 
 <script>
-import ChatMessage from './components/ChatMessage.vue';
-import ButtonOption from './components/ButtonOption.vue';
 import ButtonClose from './components/ButtonClose.vue';
 
 export default {
@@ -95,73 +85,78 @@ export default {
           id: 3,
         },
       ],
-      time: 0,
+      buttonsToShow: []
     }
   },
   mounted: function () {
     this.fillGreeting();
   },
   components: {
-    ChatMessage,
-    ButtonOption,
     ButtonClose,
   },
   methods: {
     fillGreeting() {
-      this.messages = [];
-      this.messages = [...this.greeting, ...this.buttons.filter(button => button.id !== 3)];
+      this.$refs.textMessages.innerHTML = '';
+      this.renderMessage('incoming', 'Приветствую! Что я могу сделать для Вас?');
+      this.renderMessage('incoming', 'Я могу заказать такси, узнать какая сейчас погода или даже напугать. Что бы вы хотели?');
+      this.renderButtons(3);
     },
-    renderMessage(buttonObj) {
-      this.messages = [];
-      this.messages.push(
-          {
-            component: 'ChatMessage',
-            type: 'outcoming',
-            text: buttonObj.text,
-          },
-          {
-            component: 'ChatMessage',
-            type: 'incoming',
-            text: buttonObj.answer,
-          }
-      );
+    renderMessage(type, inner) {
+      const parent = this.$refs.textMessages;
+      let newMessage = document.createElement('div');
+      newMessage.className = `chatbot__text-message chatbot__text-message_${type}`;
+      newMessage.innerHTML = inner;
+      parent.append(newMessage);
+      this.initMessageAnimation(newMessage);
+    },
+    renderButtons(excludedId) {
+      this.buttonsToShow =[];
       this.buttons.forEach(button => {
-        if (button.id !== buttonObj.id) {
-          this.messages.push(button)
+        if(button.id !== excludedId) {
+          this.buttonsToShow.push(button);
+        }
+      })
+      this.initButtonAnimation();
+    },
+    rerenderTrack(button) {
+      this.buttonsToShow =[];
+      this.$refs.textMessages.innerHTML = '';
+      if(button.id !== 3) {
+        this.renderMessage('outcoming', button.text);
+        this.renderMessage('incoming', button.answer);
+        this.renderButtons(button.id);
+      } else {
+        this.fillGreeting();
+        const body = document.querySelector('.chatbot__body');
+        body.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        })
+      }
+    },
+    initMessageAnimation(elem) {
+      let messagesInTextMessageTrack = document.querySelectorAll('.chatbot__text-message');
+      messagesInTextMessageTrack.forEach(message => {
+        if(message === elem) {
+          this.animateElem(elem, Array.from(messagesInTextMessageTrack).indexOf(elem))
         }
       })
     },
-    disableButtons() {
-      const buttonOptions = document.querySelectorAll('.button-option');
-      buttonOptions.forEach(button => {
-        button.disabled = true;
-      })
+    initButtonAnimation() {
+      let buttonContainer = document.querySelector('.chatbot__buttons');
+      this.animateElem(buttonContainer, 2);
     },
-    enter(el, done) {
+    animateElem(elem, index) {
       let coef = 1;
       setTimeout(() => {
         let interval = setInterval(() => {
-          if (el.style.opacity >= 1) {
+          if (elem.style.opacity >= 1) {
             clearInterval(interval);
-            done();
           }
+          elem.style.opacity = String(0.1 * coef);
           coef++;
-          el.style.opacity = 0.1 * coef;
-        }, 50)
-      }, this.time * 1000);
-      this.time++
-    },
-    afterEnter(el) {
-      const messageItems = document.querySelectorAll('.chatbot__message');
-      if (el.parentElement.parentElement === messageItems[messageItems.length - 1]) {
-        const buttonOptions = document.querySelectorAll('.button-option');
-        let timeout = setTimeout(() => {
-          buttonOptions.forEach(button => {
-            button.disabled = false;
-            this.time = 0;
-          })
-        }, 20)
-      }
+        }, 40)
+      }, (index + 1) * 1000);
     },
     closeChatbot() {
       console.log('close')
@@ -257,30 +252,41 @@ button {
 .chatbot__message-track {
   display: flex;
   flex-direction: column;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.chatbot__text-messages {
+  display: flex;
+  flex-direction: column;
   gap: 15px;
   align-items: flex-start;
 }
 
-.chatbot__message {
+.chatbot__text-message {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.3em;
   padding: 15px;
   border: 2px solid;
   border-radius: 10px;
   background-color: #fff;
   position: relative;
-  /* opacity: 0; */
+  opacity: 0;
 }
 
-.chatbot__message_incoming {
+.chatbot__text-message_incoming {
   border-color: #dc0c53;
 }
 
-.chatbot__message_outcoming {
+.chatbot__text-message_outcoming {
   border-color: #aeb8cd;
   align-self: flex-end;
 }
 
-.chatbot__message_incoming::before,
-.chatbot__message_outcoming::before {
+.chatbot__text-message_incoming::before,
+.chatbot__text-message_outcoming::before {
   content: '';
   display: block;
   position: absolute;
@@ -290,23 +296,37 @@ button {
   z-index: -1;
 }
 
-.chatbot__message_incoming::before {
+.chatbot__text-message_incoming::before {
   left: -10px;
   background: url('./assets/images/message-corner.svg') 0 0/contain no-repeat;
   transform: rotate(7deg);
 }
 
-.chatbot__message_outcoming::before {
+.chatbot__text-message_outcoming::before {
   right: -10px;
   background: url('./assets/images/message-corner_grey.svg') 0 0/contain no-repeat;
   transform: scaleX(-1) rotate(7deg);
 }
 
-.chatbot__message_button {
-  border: none;
-  padding: 0;
-  height: 35px;
+.chatbot__buttons {
   display: flex;
-  overflow: hidden;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  opacity: 0;
+}
+
+.chatbot__button {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background-color: #dc0c53;
+  padding: 10px 15px;
+  border-radius: 16px;
+  cursor: pointer;
 }
 </style>

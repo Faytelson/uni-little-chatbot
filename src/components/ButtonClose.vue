@@ -2,7 +2,7 @@
     <div class="button-close">
         <button 
             class="button-close__btn"
-            @click="emitEvent"
+            @click="sendEvent"
         ></button>
     </div>
 </template>
@@ -15,8 +15,8 @@ export default {
         }
     },
     methods: {
-        emitEvent() {
-            this.$emit('emitClose')
+        sendEvent() {
+            this.$emit('close')
         }
     }
 }
