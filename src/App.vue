@@ -59,19 +59,6 @@ export default {
   name: 'app',
   data() {
     return {
-      messages: [],
-      greeting: [
-        {
-          component: 'ChatMessage',
-          type: 'incoming',
-          text: 'Приветствую! Что я могу сделать для Вас?',
-        },
-        {
-          component: 'ChatMessage',
-          type: 'incoming',
-          text: 'Я могу заказать такси, узнать какая сейчас погода или даже напугать. Что бы вы хотели?',
-        },
-      ],
       buttons: [
         {
           component: 'ButtonOption',
@@ -230,7 +217,7 @@ button {
   width: 100%;
   height: 100%;
   max-height: calc(70vh - 120px);
-  min-height: calc(350px - 120px);
+  min-height: 230px; /*calc(350px - 120px)*/
   border-radius: 16px;
   overflow: hidden;
   border: 2px solid #dc0c53;
@@ -244,10 +231,6 @@ button {
   justify-content: space-between;
   align-items: stretch;
   padding: 10px;
-}
-
-.chatbot__button-close {
-
 }
 
 .chatbot__logo {
@@ -275,14 +258,12 @@ button {
 .chatbot__body {
   height: 100%;
   max-height: calc(70vh - 200px);
-  min-height: calc(350px - 200px);
+  min-height: 150px; /*(calc(350px - 200px))*/
   padding: 24px;
   overflow-y: auto;
-}
-
-.chatbot__body {
   scrollbar-width: thin;
   scrollbar-color: lightgray transparent;
+  background-color: #fff;
 }
 
 .chatbot__body::-webkit-scrollbar {
@@ -323,6 +304,7 @@ button {
   background-color: #fff;
   position: relative;
   opacity: 0;
+  max-width: 500px;
 }
 
 .chatbot__text-message_incoming {
@@ -384,6 +366,7 @@ button {
   height: 100px;
   background-color: #dc0c53;
   border-radius: 50%;
+  z-index: 9998;
 }
 
 .chatbot__show-button-img {
@@ -399,10 +382,6 @@ button {
 .slide-enter-active {
   animation: slide-in .5s linear;
 }
-
-/*.slide-leave {*/
-/*  */
-/*}*/
 
 .slide-leave-active {
   animation: slide-out .5s linear;
@@ -428,15 +407,39 @@ button {
   }
 }
 
-@media screen and (max-width: 575px) {
+@media screen and (max-width: 767px) {
   .chatbot {
-    width: 100%;
-    max-width: 100%;
-    /*height: auto;*/
-    /*max-height: 100%;*/
-    min-height: 350px;
-    bottom: 20px;
-    right: 20px;
+    width: auto;
+    max-width: auto;
+    height: auto;
+    max-height: auto;
+    min-height: auto;
   }
+
+  .chatbot__inner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    max-height: 100%;
+    min-height: 100%;
+    border-radius: 0;
+    overflow: hidden;
+    border: 2px solid #dc0c53;
+    z-index: 9999;
+}
+
+.chatbot__show-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
+.chatbot__body {
+  height: calc(100% - 80px);
+  max-height: (100% - 80px);
+  min-height: calc(100% - 80px);
+}
 }
 </style>
