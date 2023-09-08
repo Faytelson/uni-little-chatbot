@@ -1,7 +1,11 @@
 <template>
   <div id="app">
     <div class="chatbot">
-      <div class="chatbot__inner">
+      <transition name="slide">
+      <div
+          class="chatbot__inner"
+          v-show="showChatbot"
+      >
         <div class="chatbot__header">
           <div class="chatbot__logo">
             <img src="./assets/images/logo-robot.png" alt="logo" class="chatbot__logo-img">
@@ -10,28 +14,40 @@
             <div class="chatbot__title-inner">Uni Little Chatbot</div>
           </div>
           <div class="chatbot__button-close">
-            <ButtonClose @emitClose="closeChatbot"></ButtonClose>
+            <ButtonClose @close="closeChatbot"></ButtonClose>
           </div>
         </div>
-        <div class="chatbot__body">
-          <div class="chatbot__message-track">
-            <div
-                class="chatbot__text-messages"
-                ref="textMessages"
-            ></div>
-            <div class="chatbot__buttons">
+          <div
+              class="chatbot__body"
+              ref="chatbotBody"
+          >
+            <div class="chatbot__message-track">
               <div
-                  class="chatbot__button"
-                  v-for="button in buttonsToShow"
-                  @click="rerenderTrack(button)"
+                  class="chatbot__text-messages"
+                  ref="textMessages"
+              ></div>
+              <div
+                  class="chatbot__buttons"
+                  ref="buttons"
               >
-                {{ button.text }}
+                <div
+                    class="chatbot__button"
+                    v-for="button in buttonsToShow"
+                    @click="rerenderTrack(button)"
+                >
+                  {{ button.text }}
+                </div>
               </div>
             </div>
           </div>
-        </div>
       </div>
-      <button class="chatbot__show-button">Show button</button>
+      </transition>
+      <button
+          class="chatbot__show-button"
+          @click="showChatbot = !showChatbot"
+      >
+        <img src="./assets/images/logo-robot.png" alt="Uni Chatbot" class="chatbot__show-button-img">
+      </button>
     </div>
   </div>
 </template>
@@ -85,14 +101,22 @@ export default {
           id: 3,
         },
       ],
-      buttonsToShow: []
+      buttonsToShow: [],
+      showChatbot: false,
     }
-  },
-  mounted: function () {
-    this.fillGreeting();
   },
   components: {
     ButtonClose,
+  },
+  watch: {
+    showChatbot: function (value) {
+      if(value) {
+        this.fillGreeting();
+        setTimeout(() => {
+          this.scrollBody();
+        }, 20)
+      }
+    }
   },
   methods: {
     fillGreeting() {
@@ -119,7 +143,6 @@ export default {
       this.initButtonAnimation();
     },
     rerenderTrack(button) {
-      this.buttonsToShow =[];
       this.$refs.textMessages.innerHTML = '';
       if(button.id !== 3) {
         this.renderMessage('outcoming', button.text);
@@ -127,12 +150,8 @@ export default {
         this.renderButtons(button.id);
       } else {
         this.fillGreeting();
-        const body = document.querySelector('.chatbot__body');
-        body.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        })
       }
+      this.scrollBody();
     },
     initMessageAnimation(elem) {
       let messagesInTextMessageTrack = document.querySelectorAll('.chatbot__text-message');
@@ -144,6 +163,7 @@ export default {
     },
     initButtonAnimation() {
       let buttonContainer = document.querySelector('.chatbot__buttons');
+      buttonContainer.style.opacity = '0';
       this.animateElem(buttonContainer, 2);
     },
     animateElem(elem, index) {
@@ -156,10 +176,17 @@ export default {
           elem.style.opacity = String(0.1 * coef);
           coef++;
         }, 40)
-      }, (index + 1) * 1000);
+      }, (index) * 1000);
+    },
+    scrollBody() {
+      this.$refs.chatbotBody.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      })
     },
     closeChatbot() {
-      console.log('close')
+      console.log('click')
+      this.showChatbot = false;
     }
   }
 }
@@ -187,11 +214,14 @@ button {
   width: 100%;
   max-width: 370px;
   max-height: 70vh;
+  min-height: 350px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  bottom: 150px;
+  justify-content: flex-end;
+  gap: 20px;
   position: fixed;
+  bottom: 50px;
   right: 80px;
   z-index: 9999;
 }
@@ -199,8 +229,8 @@ button {
 .chatbot__inner {
   width: 100%;
   height: 100%;
-  max-height: calc(70vh - 70px);
-  margin-bottom: 20px;
+  max-height: calc(70vh - 120px);
+  min-height: calc(350px - 120px);
   border-radius: 16px;
   overflow: hidden;
   border: 2px solid #dc0c53;
@@ -244,9 +274,28 @@ button {
 
 .chatbot__body {
   height: 100%;
-  max-height: calc(70vh - 150px);
+  max-height: calc(70vh - 200px);
+  min-height: calc(350px - 200px);
   padding: 24px;
   overflow-y: auto;
+}
+
+.chatbot__body {
+  scrollbar-width: thin;
+  scrollbar-color: lightgray transparent;
+}
+
+.chatbot__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatbot__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chatbot__body::-webkit-scrollbar-thumb {
+  background-color: lightgray;
+  border-radius: 16px;
 }
 
 .chatbot__message-track {
@@ -328,5 +377,66 @@ button {
   padding: 10px 15px;
   border-radius: 16px;
   cursor: pointer;
+}
+
+.chatbot__show-button {
+  width: 100px;
+  height: 100px;
+  background-color: #dc0c53;
+  border-radius: 50%;
+}
+
+.chatbot__show-button-img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.slide-enter {
+  opacity: 0;
+}
+
+.slide-enter-active {
+  animation: slide-in .5s linear;
+}
+
+/*.slide-leave {*/
+/*  */
+/*}*/
+
+.slide-leave-active {
+  animation: slide-out .5s linear;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@media screen and (max-width: 575px) {
+  .chatbot {
+    width: 100%;
+    max-width: 100%;
+    /*height: auto;*/
+    /*max-height: 100%;*/
+    min-height: 350px;
+    bottom: 20px;
+    right: 20px;
+  }
 }
 </style>
