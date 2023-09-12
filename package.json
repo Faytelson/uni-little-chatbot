@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "motion": "^10.16.2",
-    "vue": "^2.5.11"
+    "vue": "^2.5.11",
+    "webpack-html-plugin": "^0.1.1"
   },
   "browserslist": [
     "> 1%",
