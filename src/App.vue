@@ -324,19 +324,18 @@ button {
   bottom: -3px;
   width: 22px;
   height: 14px;
-  z-index: -1;
 }
 
 .chatbot__text-message_incoming::before {
-  left: -10px;
+  left: -12px;
   background: url('./assets/images/message-corner.svg') 0 0/contain no-repeat;
-  transform: rotate(7deg);
+  transform: rotate(30deg);
 }
 
 .chatbot__text-message_outcoming::before {
-  right: -10px;
+  right: -12px;
   background: url('./assets/images/message-corner_grey.svg') 0 0/contain no-repeat;
-  transform: scaleX(-1) rotate(7deg);
+  transform: scaleX(-1) rotate(30deg);
 }
 
 .chatbot__buttons {
@@ -366,7 +365,6 @@ button {
   height: 100px;
   background-color: #dc0c53;
   border-radius: 50%;
-  z-index: 9998;
 }
 
 .chatbot__show-button-img {
@@ -410,9 +408,9 @@ button {
 @media screen and (max-width: 767px) {
   .chatbot {
     width: auto;
-    max-width: auto;
+    max-width: 100%;
     height: auto;
-    max-height: auto;
+    max-height: 100%;
     min-height: auto;
   }
 
@@ -438,7 +436,7 @@ button {
 
 .chatbot__body {
   height: calc(100% - 80px);
-  max-height: (100% - 80px);
+  max-height: calc(100% - 80px);
   min-height: calc(100% - 80px);
 }
 }
